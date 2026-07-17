@@ -131,12 +131,32 @@ export function NfcWriterModal({ isOpen, onClose, automation, onSuccessLog }: Nf
                   Començar a Gravar
                 </button>
               ) : status === 'error' ? (
-                <button
-                  onClick={() => setStatus('idle')}
-                  className="w-full py-4 px-6 bg-error/10 border border-error/20 rounded-xl text-error font-bold tracking-wide active:scale-95 transition-all hover:bg-error/20"
-                >
-                  Tornar a intentar
-                </button>
+                <div className="space-y-3">
+                  <button
+                    onClick={() => {
+                      if (!automation) return;
+                      let copyText = automation.payload;
+                      if (automation.type === 'wifi') {
+                        try {
+                          const wifi = JSON.parse(automation.payload);
+                          copyText = `WIFI:T:${wifi.encryption};S:${wifi.ssid};P:${wifi.password};;`;
+                        } catch (e) {}
+                      }
+                      navigator.clipboard.writeText(copyText);
+                      alert('Dades copiades al porta-retalls! Ara enganxa-les a NFC Tools.');
+                    }}
+                    className="w-full py-4 px-6 bg-surface-container border border-white/5 rounded-xl text-on-surface font-bold tracking-wide active:scale-95 transition-all hover:bg-surface-container-highest flex items-center justify-center gap-2"
+                  >
+                    <span className="material-symbols-outlined text-lg">content_copy</span>
+                    Copiar Dades (Per a iOS)
+                  </button>
+                  <button
+                    onClick={() => setStatus('idle')}
+                    className="w-full py-4 px-6 bg-error/10 border border-error/20 rounded-xl text-error font-bold tracking-wide active:scale-95 transition-all hover:bg-error/20"
+                  >
+                    Tornar a intentar
+                  </button>
+                </div>
               ) : (
                 <button
                   onClick={onClose}
