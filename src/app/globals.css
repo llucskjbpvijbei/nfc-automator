@@ -1,0 +1,49 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: var(--font-inter);
+  
+  /* Pastel Light Theme */
+  --color-background: hsl(0 0% 100%); /* Lighter, pure white background */
+  --color-foreground: hsl(220 15% 30%); /* Soft dark text */
+  --color-card: hsl(0 0% 100%);
+  --color-card-foreground: hsl(220 15% 30%);
+  --color-popover: hsl(0 0% 100%);
+  --color-popover-foreground: hsl(220 15% 30%);
+  
+  --color-primary: hsl(240 60% 80%); /* Pastel Periwinkle Blue */
+  --color-primary-foreground: hsl(240 60% 30%); /* Darker contrast text */
+  
+  --color-secondary: hsl(340 60% 90%); /* Soft Pastel Pink */
+  --color-secondary-foreground: hsl(340 50% 30%);
+  
+  --color-muted: hsl(0 0% 98%); /* Very soft/light contrast background */
+  --color-muted-foreground: hsl(220 10% 55%);
+  
+  --color-accent: hsl(160 50% 85%); /* Pastel Mint */
+  --color-accent-foreground: hsl(160 50% 25%);
+  
+  --color-destructive: hsl(0 70% 85%); /* Pastel Red */
+  --color-destructive-foreground: hsl(0 70% 30%);
+  
+  --color-border: hsl(30 20% 90%);
+  --color-input: hsl(30 20% 90%);
+  --color-ring: hsl(240 60% 80%);
+  
+  --radius-xl: 1rem;
+  --radius-2xl: 1.5rem;
+  --radius-3xl: 2rem;
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    /* Soft pastel gradient */
+    background-image: radial-gradient(ellipse 80% 80% at 50% -20%, rgba(200,210,250,0.4), rgba(255,245,240,0));
+    min-height: 100vh;
+  }
+}
