@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="ca"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>NFC Automator - Interacció</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-tint": "#7dd3fc",
+                    "on-surface-variant": "#a0b4c4",
+                    "tertiary": "#c8a0f0",
+                    "on-secondary": "#001f2e",
+                    "outline": "#4a6070",
+                    "secondary-fixed-dim": "#88b4cc",
+                    "surface-dim": "#0f1524",
+                    "surface-container-lowest": "#0a0e1a",
+                    "on-tertiary": "#1a002e",
+                    "on-tertiary-fixed": "#1a002e",
+                    "on-primary-container": "#c8eaff",
+                    "surface-container-highest": "#202c42",
+                    "on-background": "#e0e8f0",
+                    "on-secondary-fixed-variant": "#2a4a5e",
+                    "tertiary-container": "#3d2060",
+                    "surface-container": "#141c2e",
+                    "tertiary-fixed": "#e8d0ff",
+                    "primary": "#7dd3fc",
+                    "on-error": "#1a0000",
+                    "surface-container-high": "#1a2438",
+                    "on-primary-fixed-variant": "#004d73",
+                    "secondary-fixed": "#c0d8e8",
+                    "secondary": "#88b4cc",
+                    "outline-variant": "#2a3a48",
+                    "on-error-container": "#ffb3b3",
+                    "secondary-container": "#1a3a4e",
+                    "inverse-surface": "#e0e8f0",
+                    "surface-bright": "#1a2438",
+                    "on-surface": "#e0e8f0",
+                    "background": "#0a0e1a",
+                    "primary-fixed-dim": "#7dd3fc",
+                    "on-secondary-fixed": "#0d1f2b",
+                    "on-primary": "#001f2e",
+                    "error": "#ff6b6b",
+                    "on-secondary-container": "#c0d8e8",
+                    "surface": "#0f1524",
+                    "on-tertiary-fixed-variant": "#4d2a73",
+                    "inverse-on-surface": "#0a0e1a",
+                    "primary-container": "#0e4d6e"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.5rem",
+                    "lg": "1rem",
+                    "xl": "1.5rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Inter"],
+                    "display": ["Inter"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        @keyframes pulse-ring {
+            0% { transform: scale(0.8); opacity: 0.5; }
+            50% { transform: scale(1.2); opacity: 0.2; }
+            100% { transform: scale(1.5); opacity: 0; }
+        }
+        @keyframes nfc-wave {
+            0% { transform: translateY(0); opacity: 1; }
+            50% { transform: translateY(-10px); opacity: 0.5; }
+            100% { transform: translateY(0); opacity: 1; }
+        }
+        .nfc-ring {
+            animation: pulse-ring 3s cubic-bezier(0.455, 0.03, 0.515, 0.955) infinite;
+        }
+        .nfc-ring-delay-1 { animation-delay: 1s; }
+        .nfc-ring-delay-2 { animation-delay: 2s; }
+        
+        .glass-panel {
+            background: rgba(15, 21, 36, 0.6);
+            backdrop-filter: blur(24px);
+            border: 1px solid rgba(125, 211, 252, 0.15);
+        }
+        
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body overflow-hidden">
+<!-- Top App Bar (Shared Component Anchor) -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-6 h-16 w-full bg-surface/60 backdrop-blur-xl border-b border-primary/10 shadow-[0_0_30px_rgba(125,211,252,0.05)]">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary text-2xl" data-icon="nfc">nfc</span>
+<span class="font-headline font-bold tracking-wider text-on-surface text-lg">NFC Automator</span>
+</div>
+<div class="w-10 h-10 rounded-full bg-primary-container border border-primary/20 flex items-center justify-center overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A professional studio portrait of a young technophile user with short hair, wearing a high-tech obsidian-colored hoodie. The lighting is dramatic and moody with cyan neon highlights reflecting off the skin, matching a high-end dark-themed glassmorphism application interface. Cinematic quality, shallow depth of field, 8k resolution." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCi4Ne1qINARvbdlmxsuyYC1KRh3Hk5jQV9er9jQ-EkXyLAKfTvcSxaos5pKJ3adBH6-YLEuya8wtR7JSsoLmKpP-S0eKnK5re0UUtoWce05WHwhLVl5OW_xtQiFy-tz8gOhMpIKAEiIslMe_LcBoqFXmexLIbWhpGDBDwdPf-0lq7qYNHFjzitsO2xvGWU6ZZAPaX7dM7F5M99q11aUALrrndQni3iJUBLiQwnRcGLbwIEWbrAqmno"/>
+</div>
+</header>
+<!-- Background Content (Simulating Active App State) -->
+<main class="pt-24 px-6 pb-24 max-w-lg mx-auto space-y-8 opacity-40 grayscale pointer-events-none">
+<section class="space-y-4">
+<h2 class="text-2xl font-bold font-headline text-on-surface">Les meves rutines</h2>
+<div class="grid gap-4">
+<div class="glass-panel p-4 rounded-xl flex items-center gap-4">
+<div class="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined" data-icon="lightbulb">lightbulb</span>
+</div>
+<div>
+<p class="font-semibold">Mode Nit</p>
+<p class="text-sm text-on-surface-variant">Activa llums i silencia</p>
+</div>
+</div>
+<div class="glass-panel p-4 rounded-xl flex items-center gap-4">
+<div class="w-12 h-12 rounded-lg bg-tertiary/10 flex items-center justify-center text-tertiary">
+<span class="material-symbols-outlined" data-icon="directions_car">directions_car</span>
+</div>
+<div>
+<p class="font-semibold">Conducció</p>
+<p class="text-sm text-on-surface-variant">Obre Mapes i Spotify</p>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- NFC Interaction Overlay (Full-screen Modal) -->
+<div class="fixed inset-0 z-[60] flex items-end md:items-center justify-center p-0 md:p-6" id="nfc-modal">
+<!-- Backdrop -->
+<div class="absolute inset-0 bg-black/40 backdrop-blur-md"></div>
+<!-- Modal Content: Bottom Sheet on Mobile, Centered Card on Web -->
+<div class="relative w-full max-w-md h-[80vh] md:h-auto glass-panel rounded-t-3xl md:rounded-3xl p-8 flex flex-col items-center justify-between shadow-2xl overflow-hidden">
+<!-- Atmospheric Glow Background -->
+<div class="absolute -top-24 -left-24 w-64 h-64 bg-primary/10 rounded-full blur-[80px]"></div>
+<div class="absolute -bottom-24 -right-24 w-64 h-64 bg-tertiary/5 rounded-full blur-[80px]"></div>
+<!-- Top Handle (Mobile Sheet) -->
+<div class="w-12 h-1 bg-on-surface-variant/20 rounded-full mb-8 md:hidden"></div>
+<!-- Header Section -->
+<div class="text-center space-y-2 z-10">
+<h3 class="text-2xl font-extrabold tracking-tight font-headline text-on-surface">Esperant etiqueta</h3>
+<p class="text-on-surface-variant max-w-[280px] mx-auto text-sm leading-relaxed">
+                    Apropa el teu telèfon a l'etiqueta NFC per iniciar l'automatització
+                </p>
+</div>
+<!-- Central Scanning Animation -->
+<div class="relative flex items-center justify-center w-64 h-64 z-10">
+<!-- Pulsing Rings -->
+<div class="absolute inset-0 border-2 border-primary/20 rounded-full nfc-ring"></div>
+<div class="absolute inset-0 border-2 border-primary/20 rounded-full nfc-ring nfc-ring-delay-1"></div>
+<div class="absolute inset-0 border-2 border-primary/20 rounded-full nfc-ring nfc-ring-delay-2"></div>
+<!-- Core NFC Icon -->
+<div class="relative bg-surface-container-highest/80 p-8 rounded-full border border-primary/30 shadow-[0_0_50px_rgba(125,211,252,0.15)] flex flex-col items-center gap-2 group transition-transform duration-500 hover:scale-105">
+<span class="material-symbols-outlined text-7xl text-primary" data-icon="nfc" style="font-variation-settings: 'FILL' 1;">nfc</span>
+<div class="flex gap-1">
+<div class="w-1 h-1 bg-primary rounded-full animate-pulse"></div>
+<div class="w-1 h-1 bg-primary/60 rounded-full animate-pulse [animation-delay:200ms]"></div>
+<div class="w-1 h-1 bg-primary/30 rounded-full animate-pulse [animation-delay:400ms]"></div>
+</div>
+</div>
+</div>
+<!-- Instructional Visual (Phone near tag) -->
+<div class="w-full flex justify-center py-6 opacity-60">
+<div class="relative w-40 h-24 border-2 border-dashed border-on-surface-variant/30 rounded-xl flex items-center justify-center">
+<span class="material-symbols-outlined text-on-surface-variant/40 text-4xl" data-icon="contactless">contactless</span>
+<!-- Floating Phone Icon -->
+<div class="absolute -top-12 animate-bounce">
+<span class="material-symbols-outlined text-primary text-5xl" data-icon="smartphone">smartphone</span>
+</div>
+</div>
+</div>
+<!-- Actions -->
+<div class="w-full space-y-4 z-10">
+<button class="w-full py-4 px-6 bg-primary/10 border border-primary/20 rounded-xl text-primary font-bold tracking-wide active:scale-95 transition-all hover:bg-primary/20" onclick="document.getElementById('nfc-modal').classList.add('hidden')">
+                    Cancel·lar
+                </button>
+<button class="w-full text-on-surface-variant text-sm font-medium hover:text-on-surface transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-lg" data-icon="help">help</span>
+                    Com funciona l'NFC?
+                </button>
+</div>
+</div>
+</div>
+<!-- Bottom Navigation Bar (Shared Component Anchor) -->
+<nav class="fixed bottom-0 w-full z-50 rounded-t-xl bg-surface-container/60 backdrop-blur-2xl border-t border-primary/15 shadow-[0_-10px_40px_rgba(0,0,0,0.3)] flex justify-around items-center h-20 px-4 pb-safe w-full">
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary/80 active:scale-90 transition-transform">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="font-label text-xs font-medium">Home</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary/80 active:scale-90 transition-transform">
+<span class="material-symbols-outlined" data-icon="bookmarks">bookmarks</span>
+<span class="font-label text-xs font-medium">Library</span>
+</button>
+<button class="flex flex-col items-center justify-center text-primary bg-primary/10 rounded-xl px-3 py-1 active:scale-90 transition-transform">
+<span class="material-symbols-outlined" data-icon="bolt" style="font-variation-settings: 'FILL' 1;">bolt</span>
+<span class="font-label text-xs font-medium">Automate</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary/80 active:scale-90 transition-transform">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-label text-xs font-medium">Settings</span>
+</button>
+</nav>
+<script>
+        // Simple Interaction logic to simulate NFC read
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                document.getElementById('nfc-modal').classList.add('hidden');
+            }
+        });
+
+        // Micro-interaction for the modal handle on drag simulation
+        let startY;
+        const modal = document.querySelector('#nfc-modal > div:last-child');
+        modal.addEventListener('touchstart', (e) => {
+            startY = e.touches[0].clientY;
+        });
+        modal.addEventListener('touchmove', (e) => {
+            const currentY = e.touches[0].clientY;
+            const diff = currentY - startY;
+            if (diff > 0) {
+                modal.style.transform = `translateY(${diff}px)`;
+            }
+        });
+        modal.addEventListener('touchend', (e) => {
+            const currentY = e.changedTouches[0].clientY;
+            if (currentY - startY > 150) {
+                document.getElementById('nfc-modal').classList.add('hidden');
+            }
+            modal.style.transform = '';
+        });
+    </script>
+</body></html>

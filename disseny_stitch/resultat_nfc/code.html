@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="ca"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>NFC Automator - Interaction Status</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-tint": "#7dd3fc",
+                    "on-surface-variant": "#a0b4c4",
+                    "tertiary": "#c8a0f0",
+                    "on-secondary": "#001f2e",
+                    "outline": "#4a6070",
+                    "secondary-fixed-dim": "#88b4cc",
+                    "surface-dim": "#0f1524",
+                    "surface-container-lowest": "#0a0e1a",
+                    "on-tertiary": "#1a002e",
+                    "on-tertiary-fixed": "#1a002e",
+                    "on-primary-container": "#c8eaff",
+                    "surface-container-highest": "#202c42",
+                    "on-background": "#e0e8f0",
+                    "on-secondary-fixed-variant": "#2a4a5e",
+                    "tertiary-container": "#3d2060",
+                    "surface-container": "#141c2e",
+                    "tertiary-fixed": "#e8d0ff",
+                    "primary": "#7dd3fc",
+                    "on-error": "#1a0000",
+                    "surface-container-high": "#1a2438",
+                    "on-primary-fixed-variant": "#004d73",
+                    "secondary-fixed": "#c0d8e8",
+                    "secondary": "#88b4cc",
+                    "outline-variant": "#2a3a48",
+                    "on-error-container": "#ffb3b3",
+                    "secondary-container": "#1a3a4e",
+                    "inverse-surface": "#e0e8f0",
+                    "surface-bright": "#1a2438",
+                    "on-surface": "#e0e8f0",
+                    "background": "#0a0e1a",
+                    "primary-fixed-dim": "#7dd3fc",
+                    "on-secondary-fixed": "#0d1f2b",
+                    "on-primary": "#001f2e",
+                    "error": "#ff6b6b",
+                    "on-secondary-container": "#c0d8e8",
+                    "surface": "#0f1524",
+                    "on-tertiary-fixed-variant": "#4d2a73",
+                    "inverse-on-surface": "#0a0e1a",
+                    "primary-container": "#0e4d6e"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.5rem",
+                    "lg": "1rem",
+                    "xl": "1.5rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Inter"],
+                    "display": ["Inter"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0a0e1a;
+            overflow-x: hidden;
+        }
+        .glacier-card {
+            background: rgba(15, 21, 36, 0.6);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(125, 211, 252, 0.1);
+        }
+        .glacier-glow {
+            box-shadow: 0 0 30px rgba(125, 211, 252, 0.05);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .success-glow {
+            filter: drop-shadow(0 0 12px rgba(125, 211, 252, 0.4));
+        }
+        .error-glow {
+            filter: drop-shadow(0 0 12px rgba(255, 107, 107, 0.4));
+        }
+        .transition-all-custom {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+    </style>
+</head>
+<body class="text-on-surface antialiased min-h-screen flex flex-col">
+<!-- Background Animation Layer -->
+<div class="fixed inset-0 -z-10 overflow-hidden">
+
+<div class="absolute inset-0 bg-gradient-to-b from-transparent via-background/20 to-background"></div>
+</div>
+<!-- Top App Bar (From Shared Components) -->
+<header class="fixed top-0 w-full z-50 bg-surface/60 backdrop-blur-xl border-b border-primary/10 shadow-[0_0_30px_rgba(125,211,252,0.05)] flex justify-between items-center px-6 h-16">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">nfc</span>
+<h1 class="text-lg font-headline font-bold tracking-wider text-on-surface">NFC Automator</h1>
+</div>
+<div class="w-8 h-8 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center overflow-hidden">
+<span class="material-symbols-outlined text-primary text-sm">person</span>
+</div>
+</header>
+<main class="flex-grow pt-24 pb-32 px-4 flex flex-col items-center justify-center max-w-4xl mx-auto w-full">
+<!-- UI Toggle for Demo Purposes (Hidden in final usage) -->
+<div class="mb-12 flex bg-surface-container/40 p-1 rounded-full border border-outline-variant/30 backdrop-blur-md">
+<button class="px-6 py-2 rounded-full text-sm font-medium transition-all-custom bg-primary text-on-primary shadow-lg" id="toggle-success" onclick="toggleStates('success')">Success</button>
+<button class="px-6 py-2 rounded-full text-sm font-medium transition-all-custom text-on-surface-variant hover:text-on-surface" id="toggle-error" onclick="toggleStates('error')">Error</button>
+</div>
+<div class="relative w-full max-w-lg perspective-1000">
+<!-- Success State Content -->
+<div class="glacier-card glacier-glow rounded-xl p-8 flex flex-col items-center text-center transition-all-custom transform opacity-100 scale-100" id="state-success">
+<div class="mb-6 w-20 h-20 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center success-glow">
+<span class="material-symbols-outlined text-5xl text-primary" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<h2 class="text-2xl font-headline font-bold mb-2 tracking-tight text-on-surface">Operació realitzada amb èxit</h2>
+<p class="text-on-surface-variant text-sm mb-8">La targeta NFC s'ha llegit correctament i les dades s'han processat.</p>
+<div class="w-full bg-white/5 border border-white/10 rounded-lg p-5 mb-8 text-left space-y-4">
+<div>
+<span class="text-[10px] uppercase tracking-widest text-primary font-bold opacity-70">Identificador del Tag</span>
+<p class="font-mono text-sm text-on-surface">04:92:A1:8B:2C:5E:80</p>
+</div>
+<div class="pt-3 border-t border-white/5">
+<span class="text-[10px] uppercase tracking-widest text-primary font-bold opacity-70">Dades llegides</span>
+<p class="text-sm text-on-surface leading-relaxed">Configuració de l'espai de treball v2.1. Executa rutina d'il·luminació 'Enfocament'.</p>
+</div>
+</div>
+<div class="flex flex-col sm:flex-row gap-4 w-full">
+<button class="flex-1 bg-primary/15 border border-primary/40 text-primary py-3 rounded-lg font-semibold hover:bg-primary/25 transition-all active:scale-95 duration-200">
+                        Compartir
+                    </button>
+<button class="flex-1 bg-primary text-on-primary py-3 rounded-lg font-semibold shadow-[0_0_20px_rgba(125,211,252,0.3)] hover:brightness-110 transition-all active:scale-95 duration-200">
+                        Guardar
+                    </button>
+</div>
+</div>
+<!-- Error State Content (Hidden Initially) -->
+<div class="hidden glacier-card glacier-glow rounded-xl p-8 flex flex-col items-center text-center transition-all-custom transform opacity-0 scale-95 absolute inset-0" id="state-error">
+<div class="mb-6 w-20 h-20 rounded-full bg-error/10 border border-error/20 flex items-center justify-center error-glow">
+<span class="material-symbols-outlined text-5xl text-error" style="font-variation-settings: 'FILL' 1;">warning</span>
+</div>
+<h2 class="text-2xl font-headline font-bold mb-2 tracking-tight text-on-surface">S'ha produït un error</h2>
+<p class="text-on-surface-variant text-sm mb-8">No s'ha pogut completar la lectura. Si us plau, mantén la targeta a prop del sensor durant uns segons.</p>
+<div class="w-full bg-error/5 border border-error/10 rounded-lg p-6 mb-10 flex flex-col items-center">
+<span class="material-symbols-outlined text-error/40 text-4xl mb-3">nfc</span>
+<p class="text-xs text-on-surface-variant italic">Error: Connexió perduda (Code 0x42)</p>
+</div>
+<div class="flex flex-col gap-4 w-full">
+<button class="w-full bg-surface-container-high text-on-surface border border-outline/30 py-3 rounded-lg font-semibold hover:bg-surface-container-highest transition-all active:scale-95 duration-200" onclick="toggleStates('success')">
+                        Cancelar
+                    </button>
+<button class="w-full bg-primary text-on-primary py-3 rounded-lg font-semibold shadow-[0_0_20px_rgba(125,211,252,0.3)] hover:brightness-110 transition-all active:scale-95 duration-200">
+                        Tornar a intentar
+                    </button>
+</div>
+</div>
+</div>
+<!-- Secondary Information Section -->
+<div class="mt-16 grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
+<div class="glacier-card p-6 rounded-lg">
+<div class="flex items-center gap-3 mb-4">
+<span class="material-symbols-outlined text-tertiary">history</span>
+<h3 class="font-bold text-on-surface">Activitat Recent</h3>
+</div>
+<div class="space-y-3">
+<div class="flex justify-between items-center text-sm p-2 hover:bg-white/5 rounded transition-colors">
+<span class="text-on-surface-variant">Home Routine #1</span>
+<span class="text-primary font-mono">14:20</span>
+</div>
+<div class="flex justify-between items-center text-sm p-2 hover:bg-white/5 rounded transition-colors">
+<span class="text-on-surface-variant">Car Unlock Key</span>
+<span class="text-primary font-mono">11:05</span>
+</div>
+</div>
+</div>
+<div class="glacier-card p-6 rounded-lg relative overflow-hidden group">
+<div class="relative z-10">
+<div class="flex items-center gap-3 mb-4">
+<span class="material-symbols-outlined text-tertiary">tips_and_updates</span>
+<h3 class="font-bold text-on-surface">Consells Pro</h3>
+</div>
+<p class="text-sm text-on-surface-variant leading-relaxed">Pots automatitzar qualsevol acció de l'iPhone mitjançant tags NTAG215. Configura'ls a la teva llibreria.</p>
+</div>
+<div class="absolute -right-4 -bottom-4 opacity-10 group-hover:opacity-20 transition-opacity">
+<span class="material-symbols-outlined text-9xl">bolt</span>
+</div>
+</div>
+</div>
+</main>
+<!-- Bottom Navigation Bar (From Shared Components) -->
+<nav class="fixed bottom-0 w-full z-50 rounded-t-xl bg-surface-container/60 backdrop-blur-2xl border-t border-primary/15 shadow-[0_-10px_40px_rgba(0,0,0,0.3)] flex justify-around items-center h-20 px-4 pb-safe">
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary/80 active:scale-90 transition-transform">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="font-label text-xs font-medium">Home</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary/80 active:scale-90 transition-transform">
+<span class="material-symbols-outlined" data-icon="bookmarks">bookmarks</span>
+<span class="font-label text-xs font-medium">Library</span>
+</button>
+<button class="flex flex-col items-center justify-center text-primary bg-primary/10 rounded-xl px-3 py-1 active:scale-90 transition-transform">
+<span class="material-symbols-outlined" data-icon="bolt">bolt</span>
+<span class="font-label text-xs font-medium">Automate</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary/80 active:scale-90 transition-transform">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-label text-xs font-medium">Settings</span>
+</button>
+</nav>
+<script>
+        function toggleStates(state) {
+            const successEl = document.getElementById('state-success');
+            const errorEl = document.getElementById('state-error');
+            const btnSuccess = document.getElementById('toggle-success');
+            const btnError = document.getElementById('toggle-error');
+
+            if (state === 'success') {
+                // Show Success
+                errorEl.classList.add('hidden', 'opacity-0', 'scale-95');
+                errorEl.classList.remove('opacity-100', 'scale-100', 'relative');
+                errorEl.classList.add('absolute');
+                
+                successEl.classList.remove('hidden', 'opacity-0', 'scale-95', 'absolute');
+                successEl.classList.add('opacity-100', 'scale-100', 'relative');
+                
+                // Toggle Buttons
+                btnSuccess.classList.add('bg-primary', 'text-on-primary', 'shadow-lg');
+                btnSuccess.classList.remove('text-on-surface-variant');
+                btnError.classList.remove('bg-primary', 'text-on-primary', 'shadow-lg');
+                btnError.classList.add('text-on-surface-variant');
+            } else {
+                // Show Error
+                successEl.classList.add('hidden', 'opacity-0', 'scale-95');
+                successEl.classList.remove('opacity-100', 'scale-100', 'relative');
+                successEl.classList.add('absolute');
+                
+                errorEl.classList.remove('hidden', 'opacity-0', 'scale-95', 'absolute');
+                errorEl.classList.add('opacity-100', 'scale-100', 'relative');
+
+                // Toggle Buttons
+                btnError.classList.add('bg-primary', 'text-on-primary', 'shadow-lg');
+                btnError.classList.remove('text-on-surface-variant');
+                btnSuccess.classList.remove('bg-primary', 'text-on-primary', 'shadow-lg');
+                btnSuccess.classList.add('text-on-surface-variant');
+            }
+        }
+
+        // Simple enter animation on load
+        window.addEventListener('DOMContentLoaded', () => {
+            const main = document.querySelector('main');
+            main.style.opacity = '0';
+            main.style.transform = 'translateY(20px)';
+            main.style.transition = 'opacity 0.8s ease-out, transform 0.8s ease-out';
+            
+            requestAnimationFrame(() => {
+                main.style.opacity = '1';
+                main.style.transform = 'translateY(0)';
+            });
+        });
+    </script>
+</body></html>

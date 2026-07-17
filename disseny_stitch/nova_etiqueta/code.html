@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="ca"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>NFC Automator - Crear Etiqueta</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-tint": "#7dd3fc",
+                    "on-surface-variant": "#a0b4c4",
+                    "tertiary": "#c8a0f0",
+                    "on-secondary": "#001f2e",
+                    "outline": "#4a6070",
+                    "secondary-fixed-dim": "#88b4cc",
+                    "surface-dim": "#0f1524",
+                    "surface-container-lowest": "#0a0e1a",
+                    "on-tertiary": "#1a002e",
+                    "on-tertiary-fixed": "#1a002e",
+                    "on-primary-container": "#c8eaff",
+                    "surface-container-highest": "#202c42",
+                    "on-background": "#e0e8f0",
+                    "on-secondary-fixed-variant": "#2a4a5e",
+                    "tertiary-container": "#3d2060",
+                    "surface-container": "#141c2e",
+                    "tertiary-fixed": "#e8d0ff",
+                    "primary": "#7dd3fc",
+                    "on-error": "#1a0000",
+                    "surface-container-high": "#1a2438",
+                    "on-primary-fixed-variant": "#004d73",
+                    "secondary-fixed": "#c0d8e8",
+                    "secondary": "#88b4cc",
+                    "outline-variant": "#2a3a48",
+                    "on-error-container": "#ffb3b3",
+                    "secondary-container": "#1a3a4e",
+                    "inverse-surface": "#e0e8f0",
+                    "surface-bright": "#1a2438",
+                    "on-primary-fixed": "#001f2e",
+                    "tertiary-fixed-dim": "#c8a0f0",
+                    "on-tertiary-container": "#e8d0ff",
+                    "primary-fixed": "#c8eaff",
+                    "inverse-primary": "#0a4c6e",
+                    "surface-variant": "#1a2438",
+                    "error-container": "#3d1414",
+                    "surface-container-low": "#111828",
+                    "on-surface": "#e0e8f0",
+                    "background": "#0a0e1a",
+                    "primary-fixed-dim": "#7dd3fc",
+                    "on-secondary-fixed": "#0d1f2b",
+                    "on-primary": "#001f2e",
+                    "error": "#ff6b6b",
+                    "on-secondary-container": "#c0d8e8",
+                    "surface": "#0f1524",
+                    "on-tertiary-fixed-variant": "#4d2a73",
+                    "inverse-on-surface": "#0a0e1a",
+                    "primary-container": "#0e4d6e"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.5rem",
+                    "lg": "1rem",
+                    "xl": "1.5rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Inter"],
+                    "display": ["Inter"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0a0e1a;
+            color: #e0e8f0;
+            overflow: hidden;
+        }
+
+        .glass-panel {
+            background: rgba(15, 21, 36, 0.6);
+            backdrop-filter: blur(24px);
+            border: 1px solid rgba(125, 211, 252, 0.15);
+            box-shadow: 0 0 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .glass-input {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(125, 211, 252, 0.1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-input:focus {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(125, 211, 252, 0.5);
+            box-shadow: 0 0 15px rgba(125, 211, 252, 0.15);
+            outline: none;
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        .drawer-slide-up {
+            animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
+        .bg-glow {
+            background: radial-gradient(circle at 50% 50%, rgba(125, 211, 252, 0.08) 0%, transparent 70%);
+        }
+    </style>
+</head>
+<body class="h-screen w-full flex flex-col items-center justify-end">
+<!-- Background Decorative Scene -->
+
+<div class="absolute inset-0 bg-glow pointer-events-none"></div>
+<!-- Top App Bar (Shared Component) -->
+<header class="fixed top-0 w-full z-50 bg-surface/60 backdrop-blur-xl border-b border-primary/10 shadow-[0_0_30px_rgba(125,211,252,0.05)] flex justify-between items-center px-6 h-16">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary" data-icon="nfc">nfc</span>
+<h1 class="text-lg font-headline font-bold tracking-wider text-on-surface">NFC Automator</h1>
+</div>
+<div class="w-8 h-8 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A stylized minimalist digital avatar of a tech-savvy user, wearing sleek futuristic glasses. The aesthetic is monochromatic with glowing ice-blue accents, consistent with the Glacier dark mode UI. Soft volumetric lighting highlights the contours of the face against a deep navy background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAFO3oGvtWqWHn4otssMYPzYj4pw22weUt7WMtphRsL1VrjMFte6QNroqwtjhxcDgNB3EMGsOaGWo1XvU7R7rnsuLIiOKCWotAyrmnbn-Xk2xJ6WP-F1m71IZb_VIqxYpgTiqkFqDV-Pe6T5UimWfL31X3yuF-VA_P_QgjvtWBjBozoJmcEzL5I87SF2B_7tV0vGmy9v5Z4YnDyr_LG5snqNcf1Xxqn3jJNnzPL7ceTl2rsKyW_mWPa"/>
+</div>
+</header>
+<!-- Main Content Canvas (Underlay) -->
+<main class="w-full h-full max-w-4xl px-6 pt-24 pb-32">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 opacity-30 pointer-events-none select-none">
+<!-- Mock Background Content -->
+<div class="glass-panel p-6 rounded-xl space-y-4">
+<div class="flex justify-between items-center">
+<div class="w-32 h-4 bg-white/10 rounded"></div>
+<div class="w-8 h-8 bg-white/10 rounded-full"></div>
+</div>
+<div class="w-full h-24 bg-white/5 rounded-lg border border-white/5"></div>
+</div>
+<div class="glass-panel p-6 rounded-xl space-y-4">
+<div class="flex justify-between items-center">
+<div class="w-32 h-4 bg-white/10 rounded"></div>
+<div class="w-8 h-8 bg-white/10 rounded-full"></div>
+</div>
+<div class="w-full h-24 bg-white/5 rounded-lg border border-white/5"></div>
+</div>
+</div>
+</main>
+<!-- Creation Drawer Panel -->
+<div class="fixed inset-0 z-[60] flex items-end justify-center pointer-events-none" id="creation-drawer">
+<div class="absolute inset-0 bg-black/40 backdrop-blur-sm pointer-events-auto"></div>
+<form class="drawer-slide-up glass-panel w-full max-w-2xl rounded-t-[2.5rem] p-8 md:p-12 space-y-8 pointer-events-auto relative" id="nfc-form">
+<!-- Drag Handle -->
+<div class="absolute top-4 left-1/2 -translate-x-1/2 w-12 h-1.5 bg-white/10 rounded-full"></div>
+<header class="space-y-1">
+<h2 class="text-2xl font-headline font-semibold text-on-surface tracking-tight">Nova Etiqueta NFC</h2>
+<p class="text-on-surface-variant text-sm">Configura la teva etiqueta física amb una acció digital automatitzada.</p>
+</header>
+<div class="space-y-6">
+<!-- Name Field -->
+<div class="space-y-2">
+<label class="block text-xs font-label font-semibold text-primary uppercase tracking-widest ml-1" for="tag-name">Nom de l'etiqueta</label>
+<input class="glass-input w-full px-5 py-4 rounded-xl text-on-surface placeholder:text-on-surface-variant/40" id="tag-name" name="tag-name" placeholder="Ex: Wi-Fi Convidats" required="" type="text"/>
+</div>
+<!-- Action Type Field -->
+<div class="space-y-2">
+<label class="block text-xs font-label font-semibold text-primary uppercase tracking-widest ml-1" for="action-type">Tipus d'Acció</label>
+<div class="relative group">
+<select class="glass-input w-full px-5 py-4 rounded-xl text-on-surface appearance-none cursor-pointer" id="action-type" name="action-type">
+<option value="url">Web / URL</option>
+<option value="text">Text</option>
+<option value="wifi">Wi-Fi</option>
+<option value="vcard">vCard (Contacte)</option>
+<option value="intent">App Intent</option>
+</select>
+<span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none transition-transform group-active:translate-y-[-40%]" data-icon="expand_more">expand_more</span>
+</div>
+</div>
+<!-- Dynamic Wi-Fi Fields (Hidden by default) -->
+<div class="hidden grid grid-cols-1 md:grid-cols-2 gap-4 animate-in fade-in slide-in-from-top-2 duration-300" id="wifi-fields">
+<div class="space-y-2">
+<label class="block text-xs font-label font-semibold text-on-surface-variant uppercase tracking-widest ml-1" for="wifi-ssid">SSID / Xarxa</label>
+<input class="glass-input w-full px-5 py-4 rounded-xl text-on-surface placeholder:text-on-surface-variant/40" id="wifi-ssid" placeholder="Nom de la xarxa" type="text"/>
+</div>
+<div class="space-y-2">
+<label class="block text-xs font-label font-semibold text-on-surface-variant uppercase tracking-widest ml-1" for="wifi-pass">Contrasenya</label>
+<input class="glass-input w-full px-5 py-4 rounded-xl text-on-surface placeholder:text-on-surface-variant/40" id="wifi-pass" placeholder="••••••••" type="password"/>
+</div>
+</div>
+<!-- Dynamic URL Field (Visible by default) -->
+<div class="space-y-2 animate-in fade-in duration-300" id="url-fields">
+<label class="block text-xs font-label font-semibold text-on-surface-variant uppercase tracking-widest ml-1" for="url-input">URL Destí</label>
+<input class="glass-input w-full px-5 py-4 rounded-xl text-on-surface placeholder:text-on-surface-variant/40" id="url-input" placeholder="https://exemple.com" type="url"/>
+</div>
+</div>
+<!-- Action Buttons -->
+<footer class="flex flex-col-reverse md:flex-row gap-4 pt-4 pb-4">
+<button class="flex-1 px-8 py-4 rounded-xl font-semibold text-on-surface hover:bg-white/5 active:scale-95 transition-all duration-200" id="btn-cancel" type="button">
+                    Cancel·lar
+                </button>
+<button class="flex-1 px-8 py-4 rounded-xl font-semibold bg-primary/20 text-primary border border-primary/30 hover:bg-primary/30 active:scale-95 transition-all duration-200 shadow-[0_0_20px_rgba(125,211,252,0.1)]" type="submit">
+                    Guardar Etiqueta
+                </button>
+</footer>
+</form>
+</div>
+<!-- Bottom Nav Bar (Shared Component) -->
+<nav class="fixed bottom-0 w-full z-50 bg-surface-container/60 backdrop-blur-2xl border-t border-primary/15 shadow-[0_-10px_40px_rgba(0,0,0,0.3)] rounded-t-xl flex justify-around items-center h-20 px-4 pb-safe">
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary/80 active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="font-label text-xs font-medium">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary/80 active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="bookmarks">bookmarks</span>
+<span class="font-label text-xs font-medium">Library</span>
+</a>
+<a class="flex flex-col items-center justify-center text-primary bg-primary/10 rounded-xl px-3 py-1 active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="bolt">bolt</span>
+<span class="font-label text-xs font-medium">Automate</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary/80 active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-label text-xs font-medium">Settings</span>
+</a>
+</nav>
+<script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const actionSelect = document.getElementById('action-type');
+            const wifiFields = document.getElementById('wifi-fields');
+            const urlFields = document.getElementById('url-fields');
+            const btnCancel = document.getElementById('btn-cancel');
+            const form = document.getElementById('nfc-form');
+
+            // Handle Dynamic Field Visibility
+            actionSelect.addEventListener('change', (e) => {
+                const val = e.target.value;
+                
+                // Hide all dynamic sections first
+                wifiFields.classList.add('hidden');
+                urlFields.classList.add('hidden');
+
+                // Show relevant section
+                if (val === 'wifi') {
+                    wifiFields.classList.remove('hidden');
+                } else if (val === 'url') {
+                    urlFields.classList.remove('hidden');
+                }
+            });
+
+            // Button Interactions
+            btnCancel.addEventListener('click', () => {
+                form.style.transform = 'translateY(100%)';
+                form.style.transition = 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1)';
+                setTimeout(() => {
+                    alert('Acció cancel·lada');
+                    form.style.transform = 'translateY(0)';
+                }, 500);
+            });
+
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const submitBtn = form.querySelector('button[type="submit"]');
+                submitBtn.innerHTML = '<span class="material-symbols-outlined animate-spin" data-icon="progress_activity">progress_activity</span>';
+                
+                setTimeout(() => {
+                    alert('Etiqueta guardada correctament!');
+                    submitBtn.innerHTML = 'Guardar Etiqueta';
+                }, 1500);
+            });
+
+            // Micro-interactions for inputs
+            const inputs = document.querySelectorAll('.glass-input');
+            inputs.forEach(input => {
+                input.addEventListener('focus', () => {
+                    input.parentElement.querySelector('label').classList.replace('text-on-surface-variant', 'text-primary');
+                });
+                input.addEventListener('blur', () => {
+                    input.parentElement.querySelector('label').classList.replace('text-primary', 'text-on-surface-variant');
+                });
+            });
+        });
+    </script>
+</body></html>

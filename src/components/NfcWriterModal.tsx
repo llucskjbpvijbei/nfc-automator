@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, SmartphoneNfc, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
 import { Automation } from '@/types';
 
 interface NfcWriterModalProps {
@@ -28,7 +27,7 @@ export function NfcWriterModal({ isOpen, onClose, automation, onSuccessLog }: Nf
 
     if (!('NDEFReader' in window)) {
       setStatus('error');
-      setErrorMessage('La Web NFC API no està suportada en aquest navegador. Utilitza Chrome per Android.');
+      setErrorMessage('NFC no suportat en aquest navegador (Utilitza Android).');
       return;
     }
 
@@ -42,7 +41,6 @@ export function NfcWriterModal({ isOpen, onClose, automation, onSuccessLog }: Nf
       if (automation.type === 'wifi') {
         try {
           const wifi = JSON.parse(automation.payload);
-          // Standard WIFI format for NDEF
           const wifiString = `WIFI:T:${wifi.encryption};S:${wifi.ssid};P:${wifi.password};;`;
           records = [{ recordType: 'text', data: wifiString }];
         } catch (e) {
@@ -69,83 +67,88 @@ export function NfcWriterModal({ isOpen, onClose, automation, onSuccessLog }: Nf
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm">
+        <div className="fixed inset-0 z-[60] flex items-end md:items-center justify-center p-0 md:p-6">
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="absolute inset-0 bg-black/40 backdrop-blur-md"
+            onClick={onClose}
+          />
+          
           <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            className="relative w-full max-w-md p-6 overflow-hidden bg-card border shadow-2xl border-border rounded-2xl"
+            initial={{ y: "100%" }}
+            animate={{ y: 0 }}
+            exit={{ y: "100%" }}
+            transition={{ type: "spring", damping: 25, stiffness: 300 }}
+            className="relative w-full max-w-md h-[80vh] md:h-auto glass-panel rounded-t-3xl md:rounded-3xl p-8 flex flex-col items-center justify-between shadow-2xl overflow-hidden"
           >
-            <button
-              onClick={onClose}
-              className="absolute top-4 right-4 text-muted-foreground hover:text-foreground transition-colors"
-            >
-              <X className="w-5 h-5" />
-            </button>
-
-            <div className="flex flex-col items-center text-center">
-              <div className="p-4 mb-4 rounded-full bg-primary/10 text-primary">
-                <SmartphoneNfc className="w-8 h-8" />
-              </div>
-
-              <h2 className="mb-2 text-xl font-semibold">Escriure a NFC</h2>
-              <p className="mb-6 text-sm text-muted-foreground">
-                Apropa el teu dispositiu a l'etiqueta NFC per a gravar l'automatització: 
-                <br />
-                <span className="font-medium text-foreground">{automation?.name}</span>
+            <div className="absolute -top-24 -left-24 w-64 h-64 bg-primary/10 rounded-full blur-[80px]"></div>
+            <div className="absolute -bottom-24 -right-24 w-64 h-64 bg-tertiary/5 rounded-full blur-[80px]"></div>
+            
+            <div className="w-12 h-1 bg-on-surface-variant/20 rounded-full mb-8 md:hidden"></div>
+            
+            <div className="text-center space-y-2 z-10">
+              <h3 className="text-2xl font-extrabold tracking-tight font-headline text-on-surface">
+                {status === 'success' ? 'Èxit!' : status === 'error' ? 'Error' : 'Gravar Etiqueta'}
+              </h3>
+              <p className="text-on-surface-variant max-w-[280px] mx-auto text-sm leading-relaxed">
+                {status === 'success' ? 'L\'etiqueta s\'ha gravat correctament.' : 
+                 status === 'error' ? errorMessage :
+                 `Apropa el telèfon per gravar: ${automation?.name}`}
               </p>
-
-              {status === 'idle' && (
+            </div>
+            
+            <div className="relative flex items-center justify-center w-64 h-64 z-10 my-4">
+              {status === 'writing' && (
+                <>
+                  <div className="absolute inset-0 border-2 border-primary/20 rounded-full nfc-ring"></div>
+                  <div className="absolute inset-0 border-2 border-primary/20 rounded-full nfc-ring nfc-ring-delay-1"></div>
+                  <div className="absolute inset-0 border-2 border-primary/20 rounded-full nfc-ring nfc-ring-delay-2"></div>
+                </>
+              )}
+              
+              <div className={`relative p-8 rounded-full border shadow-[0_0_50px_rgba(125,211,252,0.15)] flex flex-col items-center gap-2 transition-transform duration-500 hover:scale-105 ${status === 'error' ? 'bg-error-container border-error/30' : status === 'success' ? 'bg-primary/20 border-primary/50' : 'bg-surface-container-highest/80 border-primary/30'}`}>
+                <span className={`material-symbols-outlined text-7xl ${status === 'error' ? 'text-error' : 'text-primary'}`} style={{ fontVariationSettings: "'FILL' 1" }}>
+                  {status === 'success' ? 'check_circle' : status === 'error' ? 'error' : 'nfc'}
+                </span>
+                {status === 'writing' && (
+                  <div className="flex gap-1">
+                    <div className="w-1 h-1 bg-primary rounded-full animate-pulse"></div>
+                    <div className="w-1 h-1 bg-primary/60 rounded-full animate-pulse [animation-delay:200ms]"></div>
+                    <div className="w-1 h-1 bg-primary/30 rounded-full animate-pulse [animation-delay:400ms]"></div>
+                  </div>
+                )}
+              </div>
+            </div>
+            
+            <div className="w-full space-y-4 z-10">
+              {status === 'idle' ? (
                 <button
                   onClick={handleWrite}
-                  className="w-full py-3 font-medium text-primary-foreground bg-primary rounded-xl hover:bg-primary/90 transition-colors shadow-lg shadow-primary/25"
+                  className="w-full py-4 px-6 bg-primary/10 border border-primary/20 rounded-xl text-primary font-bold tracking-wide active:scale-95 transition-all hover:bg-primary/20 ice-glow"
                 >
                   Començar a Gravar
                 </button>
-              )}
-
-              {status === 'writing' && (
-                <div className="flex flex-col items-center text-primary animate-pulse">
-                  <Loader2 className="w-8 h-8 mb-3 animate-spin" />
-                  <p className="font-medium">Esperant etiqueta NFC...</p>
-                </div>
-              )}
-
-              {status === 'success' && (
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="flex flex-col items-center text-green-500"
+              ) : status === 'error' ? (
+                <button
+                  onClick={() => setStatus('idle')}
+                  className="w-full py-4 px-6 bg-error/10 border border-error/20 rounded-xl text-error font-bold tracking-wide active:scale-95 transition-all hover:bg-error/20"
                 >
-                  <CheckCircle2 className="w-12 h-12 mb-3" />
-                  <p className="font-medium text-lg">Gravat amb èxit!</p>
-                  <button
-                    onClick={onClose}
-                    className="mt-6 w-full py-2 px-4 font-medium text-primary-foreground bg-primary rounded-xl hover:bg-primary/90 transition-colors"
-                  >
-                    Tancar
-                  </button>
-                </motion.div>
-              )}
-
-              {status === 'error' && (
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="flex flex-col items-center w-full"
+                  Tornar a intentar
+                </button>
+              ) : (
+                <button
+                  onClick={onClose}
+                  className="w-full py-4 px-6 bg-primary/20 border border-primary/30 rounded-xl text-on-surface font-bold tracking-wide active:scale-95 transition-all hover:bg-primary/30"
                 >
-                  <AlertCircle className="w-12 h-12 mb-3 text-destructive" />
-                  <p className="font-medium text-destructive mb-2">S'ha produït un error</p>
-                  <p className="text-sm text-muted-foreground mb-6 bg-destructive/10 p-3 rounded-lg w-full">
-                    {errorMessage}
-                  </p>
-                  <button
-                    onClick={() => setStatus('idle')}
-                    className="w-full py-2 px-4 font-medium text-destructive-foreground bg-destructive rounded-xl hover:bg-destructive/90 transition-colors"
-                  >
-                    Tornar a intentar
-                  </button>
-                </motion.div>
+                  Tancar
+                </button>
+              )}
+              {status === 'idle' && (
+                <button onClick={onClose} className="w-full text-on-surface-variant text-sm font-medium hover:text-on-surface transition-colors flex items-center justify-center gap-2">
+                  Cancel·lar
+                </button>
               )}
             </div>
           </motion.div>

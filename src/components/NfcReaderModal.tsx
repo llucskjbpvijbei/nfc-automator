@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Scan, Loader2, Save } from 'lucide-react';
 import { Automation } from '@/types';
 
 interface NfcReaderModalProps {
@@ -26,7 +25,7 @@ export function NfcReaderModal({ isOpen, onClose, onSaveRead }: NfcReaderModalPr
   const handleRead = async () => {
     if (!('NDEFReader' in window)) {
       setStatus('error');
-      setReadData('La Web NFC API no està suportada en aquest navegador.');
+      setReadData('NFC no suportat en aquest navegador (Utilitza Android).');
       return;
     }
 
@@ -79,72 +78,105 @@ export function NfcReaderModal({ isOpen, onClose, onSaveRead }: NfcReaderModalPr
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm">
+        <div className="fixed inset-0 z-[60] flex items-end md:items-center justify-center p-0 md:p-6">
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="absolute inset-0 bg-black/40 backdrop-blur-md"
+            onClick={onClose}
+          />
+          
           <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            className="relative w-full max-w-md p-6 overflow-hidden bg-card border shadow-2xl border-border rounded-2xl"
+            initial={{ y: "100%" }}
+            animate={{ y: 0 }}
+            exit={{ y: "100%" }}
+            transition={{ type: "spring", damping: 25, stiffness: 300 }}
+            className="relative w-full max-w-md h-[80vh] md:h-auto glass-panel rounded-t-3xl md:rounded-3xl p-8 flex flex-col items-center justify-between shadow-2xl overflow-hidden"
           >
-            <button onClick={onClose} className="absolute top-4 right-4 text-muted-foreground hover:text-foreground">
-              <X className="w-5 h-5" />
-            </button>
-
-            <div className="flex flex-col items-center text-center">
-              <div className="p-4 mb-4 rounded-full bg-primary/10 text-primary">
-                <Scan className="w-8 h-8" />
-              </div>
-
-              <h2 className="mb-2 text-xl font-semibold">Llegir Etiqueta NFC</h2>
-              
-              {status === 'idle' && (
-                <>
-                  <p className="mb-6 text-sm text-muted-foreground">
-                    Prem el botó i apropa el teu dispositiu a qualsevol etiqueta NFC per veure què conté.
-                  </p>
-                  <button onClick={handleRead} className="w-full py-3 font-medium text-primary-foreground bg-primary rounded-xl">
-                    Començar a Llegir
-                  </button>
-                </>
-              )}
-
-              {status === 'reading' && (
-                <div className="flex flex-col items-center text-primary animate-pulse">
-                  <Loader2 className="w-8 h-8 mb-3 animate-spin" />
-                  <p className="font-medium">Apropa l'etiqueta NFC al telèfon...</p>
+            <div className="absolute -top-24 -left-24 w-64 h-64 bg-primary/10 rounded-full blur-[80px]"></div>
+            <div className="absolute -bottom-24 -right-24 w-64 h-64 bg-tertiary/5 rounded-full blur-[80px]"></div>
+            
+            <div className="w-12 h-1 bg-on-surface-variant/20 rounded-full mb-8 md:hidden"></div>
+            
+            <div className="text-center space-y-2 z-10 w-full">
+              <h3 className="text-2xl font-extrabold tracking-tight font-headline text-on-surface">
+                {status === 'success' ? 'Lectura Completada' : status === 'error' ? 'Error' : 'Llegir Etiqueta'}
+              </h3>
+              <p className="text-on-surface-variant text-sm leading-relaxed">
+                {status === 'success' ? 'S\'han extret les següents dades:' : 
+                 status === 'error' ? readData :
+                 'Apropa el teu telèfon a l\'etiqueta NFC per escanejar-la.'}
+              </p>
+            </div>
+            
+            {status === 'success' ? (
+              <div className="w-full my-6 z-10">
+                <div className="p-4 rounded-xl bg-surface-container-highest border border-white/5 font-mono text-sm break-all max-h-40 overflow-y-auto custom-scrollbar">
+                  {readData}
                 </div>
-              )}
-
-              {status === 'success' && (
-                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="w-full text-left">
-                  <p className="mb-2 text-sm font-medium text-green-600">Lectura completada:</p>
-                  <div className="p-4 mb-4 font-mono text-sm break-all rounded-xl bg-secondary/50 max-h-40 overflow-y-auto">
-                    {readData}
-                  </div>
-                  <div className="flex gap-2">
-                    <button onClick={onClose} className="flex-1 py-2 font-medium bg-background border rounded-xl hover:bg-secondary">
-                      Tancar
-                    </button>
-                    <button 
-                      onClick={() => {
-                        onSaveRead(readData, readType);
-                        onClose();
-                      }} 
-                      className="flex-1 flex items-center justify-center gap-2 py-2 font-medium text-primary-foreground bg-primary rounded-xl"
-                    >
-                      <Save className="w-4 h-4" /> Guardar
-                    </button>
-                  </div>
-                </motion.div>
-              )}
-
-              {status === 'error' && (
-                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="w-full">
-                  <p className="p-3 mb-4 text-sm text-destructive bg-destructive/10 rounded-xl">{readData}</p>
-                  <button onClick={() => setStatus('idle')} className="w-full py-2 font-medium text-destructive-foreground bg-destructive rounded-xl">
-                    Tornar a intentar
+              </div>
+            ) : (
+              <div className="relative flex items-center justify-center w-64 h-64 z-10 my-4">
+                {status === 'reading' && (
+                  <>
+                    <div className="absolute inset-0 border-2 border-primary/20 rounded-full nfc-ring"></div>
+                    <div className="absolute inset-0 border-2 border-primary/20 rounded-full nfc-ring nfc-ring-delay-1"></div>
+                    <div className="absolute inset-0 border-2 border-primary/20 rounded-full nfc-ring nfc-ring-delay-2"></div>
+                  </>
+                )}
+                
+                <div className={`relative p-8 rounded-full border shadow-[0_0_50px_rgba(125,211,252,0.15)] flex flex-col items-center gap-2 transition-transform duration-500 hover:scale-105 ${status === 'error' ? 'bg-error-container border-error/30' : 'bg-surface-container-highest/80 border-primary/30'}`}>
+                  <span className={`material-symbols-outlined text-7xl ${status === 'error' ? 'text-error' : 'text-primary'}`} style={{ fontVariationSettings: "'FILL' 1" }}>
+                    {status === 'error' ? 'error' : 'nfc'}
+                  </span>
+                  {status === 'reading' && (
+                    <div className="flex gap-1">
+                      <div className="w-1 h-1 bg-primary rounded-full animate-pulse"></div>
+                      <div className="w-1 h-1 bg-primary/60 rounded-full animate-pulse [animation-delay:200ms]"></div>
+                      <div className="w-1 h-1 bg-primary/30 rounded-full animate-pulse [animation-delay:400ms]"></div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+            
+            <div className="w-full space-y-4 z-10">
+              {status === 'idle' ? (
+                <button
+                  onClick={handleRead}
+                  className="w-full py-4 px-6 bg-primary/10 border border-primary/20 rounded-xl text-primary font-bold tracking-wide active:scale-95 transition-all hover:bg-primary/20 ice-glow"
+                >
+                  Començar a Llegir
+                </button>
+              ) : status === 'success' ? (
+                <div className="flex gap-2">
+                  <button onClick={onClose} className="flex-1 py-4 px-6 bg-surface-container border border-white/5 rounded-xl text-on-surface font-bold tracking-wide active:scale-95 transition-all hover:bg-surface-container-highest">
+                    Tancar
                   </button>
-                </motion.div>
+                  <button 
+                    onClick={() => {
+                      onSaveRead(readData, readType);
+                      onClose();
+                    }} 
+                    className="flex-1 py-4 px-6 bg-primary/20 border border-primary/30 rounded-xl text-primary font-bold tracking-wide active:scale-95 transition-all hover:bg-primary/30 ice-glow"
+                  >
+                    Guardar
+                  </button>
+                </div>
+              ) : status === 'error' ? (
+                <button
+                  onClick={() => setStatus('idle')}
+                  className="w-full py-4 px-6 bg-error/10 border border-error/20 rounded-xl text-error font-bold tracking-wide active:scale-95 transition-all hover:bg-error/20"
+                >
+                  Tornar a intentar
+                </button>
+              ) : null}
+              
+              {(status === 'idle' || status === 'error') && (
+                <button onClick={onClose} className="w-full text-on-surface-variant text-sm font-medium hover:text-on-surface transition-colors flex items-center justify-center gap-2">
+                  Cancel·lar
+                </button>
               )}
             </div>
           </motion.div>

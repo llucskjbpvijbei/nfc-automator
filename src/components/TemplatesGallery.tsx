@@ -1,6 +1,5 @@
 'use client';
 
-import { Zap, Wifi, Music, MessageCircle } from 'lucide-react';
 import { Automation } from '@/types';
 
 interface TemplatesGalleryProps {
@@ -11,7 +10,8 @@ export function TemplatesGallery({ onSelectTemplate }: TemplatesGalleryProps) {
   const templates = [
     {
       name: 'Compartir Wi-Fi',
-      icon: <Wifi className="w-5 h-5 text-blue-500" />,
+      icon: 'wifi',
+      iconClass: 'text-primary bg-primary/10',
       template: {
         name: 'Wi-Fi Convidats',
         type: 'wifi' as const,
@@ -19,8 +19,9 @@ export function TemplatesGallery({ onSelectTemplate }: TemplatesGalleryProps) {
       }
     },
     {
-      name: 'Música (Spotify)',
-      icon: <Music className="w-5 h-5 text-green-500" />,
+      name: 'Obrir Spotify',
+      icon: 'music_note',
+      iconClass: 'text-tertiary bg-tertiary/10',
       template: {
         name: 'Obrir Playlist',
         type: 'app_intent' as const,
@@ -28,42 +29,44 @@ export function TemplatesGallery({ onSelectTemplate }: TemplatesGalleryProps) {
       }
     },
     {
-      name: 'Enviar WhatsApp',
-      icon: <MessageCircle className="w-5 h-5 text-teal-500" />,
+      name: 'Targeta Contacte',
+      icon: 'contact_page',
+      iconClass: 'text-secondary bg-secondary/10',
       template: {
-        name: 'Avisar que he arribat',
-        type: 'url' as const,
-        payload: 'whatsapp://send?text=Ja he arribat!'
+        name: 'Targeta Visita',
+        type: 'vcard' as const,
+        payload: 'BEGIN:VCARD\nVERSION:3.0\nN:Nom\nTEL:123456\nEMAIL:a@a.com\nEND:VCARD'
       }
     },
     {
-      name: 'Encendre Llums (IFTTT)',
-      icon: <Zap className="w-5 h-5 text-yellow-500" />,
+      name: 'Mode Cotxe',
+      icon: 'directions_car',
+      iconClass: 'text-primary bg-primary/10',
       template: {
-        name: 'Llums Menjador',
+        name: 'Mode Cotxe',
         type: 'url' as const,
-        payload: 'https://maker.ifttt.com/trigger/llums_on/with/key/TEVA_CLAU'
+        payload: 'https://maps.google.com'
       }
     }
   ];
 
   return (
-    <div className="mb-8">
-      <h3 className="mb-4 text-sm font-medium text-muted-foreground">Plantilles ràpides</h3>
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+    <section className="space-y-4">
+      <h3 className="text-sm font-bold uppercase tracking-widest text-primary/70 px-1">Plantilles ràpides</h3>
+      <div className="flex overflow-x-auto gap-4 pb-4 custom-scrollbar snap-x">
         {templates.map((t, i) => (
-          <button
+          <div
             key={i}
             onClick={() => onSelectTemplate(t.template)}
-            className="flex flex-col items-center p-4 transition-colors border bg-card border-border/50 rounded-2xl hover:bg-secondary/50 hover:border-primary/30 group"
+            className="snap-start min-w-[160px] glass-card p-4 rounded-xl space-y-3 hover:border-primary/40 transition-colors cursor-pointer group"
           >
-            <div className="p-3 mb-2 bg-background rounded-xl shadow-sm group-hover:scale-110 transition-transform">
-              {t.icon}
+            <div className={`w-10 h-10 rounded-lg flex items-center justify-center transition-transform group-hover:scale-110 ${t.iconClass}`}>
+              <span className="material-symbols-outlined">{t.icon}</span>
             </div>
-            <span className="text-xs font-medium text-center">{t.name}</span>
-          </button>
+            <p className="font-semibold text-sm leading-tight text-on-surface">{t.name}</p>
+          </div>
         ))}
       </div>
-    </div>
+    </section>
   );
 }
